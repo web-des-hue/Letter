@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jerome Abrenica - Cinematic Valentine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --env-main: #ff4d6d;
+            --env-light: #ff8fa3;
+            --env-mid: #ff758f;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #ffccd5 0%, #ff4d6d 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            perspective: 2000px;
+            transition: opacity 1.5s ease-out;
+        }
+
+        /* --- Rose Background Styles --- */
+        #rose-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bg-rose {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0;
+            animation: roseFade 5s ease-in-out forwards;
+        }
+
+        @keyframes roseFade {
+            0% { transform: translateY(20px) scale(0.5); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .valentine-container {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            z-index: 10;
+            transform-style: preserve-3d;
+            animation: floatEnvelope 4s ease-in-out infinite;
+        }
+
+        @keyframes floatEnvelope {
+            0%, 100% { transform: translateY(0) rotateX(5deg); }
+            50% { transform: translateY(-20px) rotateX(10deg); }
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: var(--env-main);
+            border-radius: 5px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 3;
+        }
+
+        .envelope::after {
+            content: ""; position: absolute; z-index: 4;
+            border-top: 100px solid transparent;
+            border-right: 150px solid var(--env-mid);
+            border-bottom: 100px solid var(--env-mid);
+            border-left: 150px solid transparent;
+        }
+
+        .envelope::before {
+            content: ""; position: absolute; z-index: 5;
+            border-top: 100px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid var(--env-light);
+            border-left: 150px solid var(--env-light);
+        }
+
+        .flap {
+            position: absolute;
+            top: 0; width: 0; height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 110px solid #c9184a;
+            transform-origin: top;
+            z-index: 6;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .heart-seal {
+            position: absolute;
+            top: 80px; left: 130px;
+            width: 40px; height: 40px;
+            background: #ff002b;
+            z-index: 15;
+            transform: rotate(-45deg);
+            cursor: pointer;
+            animation: beat 1.2s infinite;
+        }
+        .heart-seal::before, .heart-seal::after {
+            content: ""; position: absolute; width: 40px; height: 40px; background: inherit; border-radius: 50%;
+        }
+        .heart-seal::before { top: -20px; left: 0; }
+        .heart-seal::after { left: 20px; top: 0; }
+
+        @keyframes beat {
+            0%, 100% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.1); }
+        }
+
+        .letter {
+            position: absolute;
+            bottom: 5px; left: 15px;
+            width: 270px; height: 180px;
+            background: #fff;
+            z-index: 2;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                        opacity 1s, 
+                        clip-path 1.5s ease-in-out, 
+                        width 1.5s ease-in-out, 
+                        height 1.5s ease-in-out;
+            font-family: 'Dancing Script', cursive;
+            text-align: center;
+            transform: translateZ(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+
+        .open .flap { transform: rotateX(180deg); z-index: 1; }
+        .open .heart-seal { display: none; }
+        
+        .show-letter .letter { 
+            transform: translateY(-160px) translateZ(300px) scale(1.2) rotateX(-5deg); 
+            z-index: 50; 
+            opacity: 1;
+        }
+
+        .letter.airplane {
+            width: 65px; height: 40px;
+            padding: 0;
+            left: 117px;
+            clip-path: polygon(100% 50%, 0% 0%, 25% 50%, 0% 100%);
+            background: #ffffff;
+            animation: flyInFront 10s forwards ease-in-out;
+            transform-origin: center;
+        }
+        .letter.airplane * { opacity: 0; transition: opacity 0.5s; }
+
+        @keyframes flyInFront {
+            0% { transform: translateY(-160px) translateZ(300px) scale(1.2) rotateY(0); }
+            10% { transform: translate3d(-100px, -180px, 350px) rotateY(-20deg) rotateZ(-5deg); }
+            25% { transform: translate3d(-350px, -220px, 450px) rotateY(-45deg) rotateZ(-20deg); }
+            50% { transform: translate3d(350px, -400px, 550px) rotateY(45deg) rotateZ(20deg); }
+            75% { transform: translate3d(-200px, -100px, 500px) rotateY(-30deg) rotateZ(-15deg); }
+            95% { transform: translate3d(0, -150px, 600px) rotateY(0) scale(1.1); opacity: 1; }
+            100% { transform: translate3d(0, -150px, 650px) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="rose-container"></div>
+
+    <div class="valentine-container" id="card">
+        <div class="flap"></div>
+        <div class="heart-seal" id="seal"></div>
+        <div class="letter" id="letter">
+            <h2 style="font-family: 'Great Vibes'; color: #c9184a; margin: 0; font-size: 1.8em; line-height: 1.2;">
+                Happy Valentine's Day<br>Jerome Abrenica
+            </h2>
+            <p style="font-size: 0.8em; color: #777; margin-top: 15px;">A magical surprise...</p>
+        </div>
+        <div class="envelope"></div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const seal = document.getElementById('seal');
+        const card = document.getElementById('card');
+        const letter = document.getElementById('letter');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const roseContainer = document.getElementById('rose-container');
+
+        // --- Rose Logic ---
+        function createRose() {
+            const rose = document.createElement('div');
+            rose.className = 'bg-rose';
+            rose.innerHTML = '🌹';
+            rose.style.left = Math.random() * 100 + 'vw';
+            rose.style.top = Math.random() * 100 + 'vh';
+            roseContainer.appendChild(rose);
+            setTimeout(() => rose.remove(), 5000);
+        }
+        setInterval(createRose, 400); // Spawns a new rose every 400ms
+
+        let particles = [];
+        let isFlying = false;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function createNoiseBuffer() {
+            const bufferSize = audioCtx.sampleRate * 1;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            return buffer;
+        }
+        const noiseBuffer = createNoiseBuffer();
+
+        function playPaperCrumble() {
+            const duration = 1.0;
+            for (let i = 0; i < 35; i++) {
+                const startTime = audioCtx.currentTime + (Math.random() * duration);
+                const source = audioCtx.createBufferSource();
+                source.buffer = noiseBuffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 2000 + Math.random() * 3500;
+                filter.Q.value = 4;
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.04, startTime + 0.005);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.05);
+                source.connect(filter).connect(gain).connect(audioCtx.destination);
+                source.start(startTime);
+            }
+        }
+
+        function playSoftMagicGlitter() {
+            const source = audioCtx.createBufferSource();
+            source.buffer = noiseBuffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 8500; 
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.005, audioCtx.currentTime + 0.08); 
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+            source.connect(filter).connect(gain).connect(audioCtx.destination);
+            source.start();
+        }
+
+        function playSoftBloomExplosion() {
+            const source = audioCtx.createBufferSource();
+            source.buffer = noiseBuffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(350, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.2);
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+            source.connect(filter).connect(gain).connect(audioCtx.destination);
+            source.start();
+        }
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawHeart(x, y, size, color, alpha) {
+            ctx.save(); ctx.translate(x, y); ctx.beginPath(); ctx.globalAlpha = alpha;
+            ctx.fillStyle = color; ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(0, -size/3, -size/2, -size/2, -size/2, 0);
+            ctx.bezierCurveTo(-size/2, size/2, 0, size/1.5, 0, size);
+            ctx.bezierCurveTo(0, size/1.5, size/2, size/2, size/2, 0);
+            ctx.bezierCurveTo(size/2, -size/2, 0, -size/3, 0, 0);
+            ctx.fill(); ctx.restore();
+        }
+
+        class HeartParticle {
+            constructor(x, y, color, isExplosion = false) {
+                this.x = x; this.y = y;
+                this.size = isExplosion ? Math.random() * 10 + 5 : Math.random() * 4 + 2;
+                this.life = 1;
+                this.vx = (Math.random() - 0.5) * (isExplosion ? 6 : 2.2);
+                this.vy = (Math.random() - 0.5) * (isExplosion ? 6 : 2.2);
+                this.color = color;
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.life -= 0.012; }
+            draw() { drawHeart(this.x, this.y, this.size, this.color, this.life); }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (isFlying) {
+                const rect = letter.getBoundingClientRect();
+                if(rect.width > 0) {
+                    particles.push(new HeartParticle(rect.left + rect.width/2, rect.top + rect.height/2, '#ffffff'));
+                    if (Math.random() > 0.93) playSoftMagicGlitter();
+                }
+            }
+            particles.forEach((p, i) => {
+                p.update(); p.draw();
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        seal.addEventListener('click', () => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            card.style.animation = 'none';
+            playPaperCrumble();
+            
+            card.classList.add('open');
+            animate();
+
+            setTimeout(() => {
+                card.classList.add('show-letter');
+                
+                setTimeout(() => {
+                    letter.classList.add('airplane');
+                    isFlying = true;
+
+                    setTimeout(() => {
+                        isFlying = false;
+                        playSoftBloomExplosion();
+                        for(let i=0; i<6; i++) setTimeout(playSoftMagicGlitter, i * 200);
+                        
+                        for(let i=0; i<25; i++) {
+                            particles.push(new HeartParticle(window.innerWidth/2, window.innerHeight/2 - 150, '#ffffff', true));
+                            particles.push(new HeartParticle(window.innerWidth/2, window.innerHeight/2 - 150, '#ffccd5', true));
+                        }
+                        setTimeout(() => { document.body.style.opacity = '0'; }, 3500);
+                    }, 10000);
+                }, 6000); 
+
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
